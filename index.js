@@ -1,11 +1,49 @@
 const express = require('express');
 const cors = require('cors');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+require('dotenv').config()
 const port = process.env.PORT || 5000;
 const app = express();
 
 //middlewire
 app.use(cors());
 app.use(express.json());
+
+
+
+
+
+
+var uri = `mongodb://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0-shard-00-00.5rqsj.mongodb.net:27017,cluster0-shard-00-01.5rqsj.mongodb.net:27017,cluster0-shard-00-02.5rqsj.mongodb.net:27017/myFirstDatabase?ssl=true&replicaSet=atlas-nfkh05-shard-0&authSource=admin&retryWrites=true&w=majority`;
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+// client.connect(err => {
+//     const collection = client.db("emaJhon").collection("product");
+//     // perform actions on the collection object
+//     console.log('mongo is connected');
+//     client.close();
+// });
+
+async function run() {
+
+    try {
+        await client.connect();
+        const productCollection = client.db('emaJhon').collection('product');
+        app.get('/product', async (req, res) => {
+            const query = {};
+            const cursor = productCollection.find(query);
+            const products = await cursor.toArray();
+            res.send(products);
+        })
+    } finally {
+
+    }
+
+}
+
+
+
+run().catch(console.dir);
+
 
 
 app.get('/', (req, res) => {
